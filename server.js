@@ -1,4 +1,3 @@
-
 const express = require("express");
 const OpenAI = require("openai");
 
@@ -38,14 +37,23 @@ app.post("/api/chat", async (req, res) => {
       apiKey: process.env.OPENAI_API_KEY
     });
 
-    const response = await client.responses.create({
-      model: "gpt-4.1-mini",
-      instructions: "You are HANSHIKA AI, a helpful assistant. Reply in the language used by the user.",
-      input: message.trim(),
-      max_output_tokens: 700
+    const response = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: "You are HANSHIKA AI, a helpful assistant. Reply in the language used by the user."
+        },
+        {
+          role: "user",
+          content: message.trim()
+        }
+      ],
+      max_tokens: 700
     });
 
-    res.json({ reply: response.output_text || "जवाब नहीं मिला।" });
+    const replyText = response.choices?.[0]?.message?.content || "जवाब नहीं मिला।";
+    res.json({ reply: replyText });
   } catch (error) {
     console.error("AI request failed:", error.message);
     res.status(500).json({
