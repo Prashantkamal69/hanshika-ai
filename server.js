@@ -27,18 +27,22 @@ app.post("/api/chat", async (req, res) => {
       });
     }
 
-    if (!process.env.OPENAI_API_KEY) {
+    const apiKey = process.env.GROQ_API_KEY || process.env.OPENAI_API_KEY;
+
+    if (!apiKey) {
       return res.status(500).json({
         error: "सर्वर पर API key सेट नहीं है।"
       });
     }
 
+    // Groq API क्लाइंट सेटअप
     const client = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY
+      apiKey: apiKey,
+      baseURL: "https://api.groq.com/openai/v1"
     });
 
     const response = await client.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "llama-3.3-70b-versatile", // Groq का बेहतरीन और तेज मॉडल
       messages: [
         {
           role: "system",
